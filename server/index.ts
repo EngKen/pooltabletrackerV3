@@ -6,7 +6,7 @@ import cors from "cors";
 const app = express();
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? 'https://your-production-frontend-url.com' 
+    ? process.env.FRONTEND_URL || 'https://pooltabletracker-v3.vercel.app'
     : 'http://localhost:5173',
   credentials: true
 }));
