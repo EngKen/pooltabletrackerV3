@@ -18,12 +18,11 @@ export async function apiRequest(
     method,
     headers: {
       ...(data ? { "Content-Type": "application/json" } : {}),
-      "Accept": "application/json",
-      "Access-Control-Allow-Origin": "*"
+      "Accept": "application/json"
     },
     body: data ? JSON.stringify(data) : undefined,
     mode: "cors",
-    credentials: "include",
+    credentials: "same-origin"
   });
 
   await throwIfResNotOk(res);
@@ -38,10 +37,9 @@ export const getQueryFn: <T>(options: {
   async ({ queryKey }) => {
     const fullUrl = `${API_BASE_URL}${queryKey[0] as string}`;
     const res = await fetch(fullUrl, {
-      credentials: "include",
+      credentials: "same-origin",
       headers: {
-        "Accept": "application/json",
-        "Access-Control-Allow-Origin": "*"
+        "Accept": "application/json"
       },
       mode: "cors"
     });
