@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { poolTableAPI } from "@/lib/api";
+import { API_BASE_URL } from "@/lib/config";
 import type { User } from "@/lib/types";
 
 interface AuthState {
@@ -43,7 +44,9 @@ export function useAuth() {
 
   const login = async (accountId: string, password: string): Promise<{ success: boolean; message?: string }> => {
     try {
+      console.log('Attempting login to:', `${API_BASE_URL}/api/auth/login`);
       const response = await poolTableAPI.login(accountId, password);
+      console.log('Login response:', response);
       
       if (response.success && response.token && response.user) {
         localStorage.setItem("auth_token", response.token);
@@ -58,11 +61,17 @@ export function useAuth() {
         
         return { success: true };
       } else {
+        console.error('Login failed:', response);
         return { success: false, message: response.message || "Login failed" };
       }
-    } catch (error) {
-      console.error("Login error:", error);
-      return { success: false, message: "Network error occurred" };
+    } catch (error: any) {
+      console.error("Login error details:", {
+        error,
+        message: error?.message || 'Unknown error',
+        stack: error?.stack,
+        url: `${API_BASE_URL}/api/auth/login`
+      });
+      return { success: false, message: error?.message || "Network error occurred" };
     }
   };
 

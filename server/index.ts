@@ -4,12 +4,21 @@ import { setupVite, serveStatic, log } from "./vite";
 import cors from "cors";
 
 const app = express();
+
+// Enable CORS for all routes
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? process.env.FRONTEND_URL || 'https://pooltabletracker-v3.vercel.app'
-    : 'http://localhost:5173',
-  credentials: true
+  origin: true, // Allow all origins during debugging
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept']
 }));
+
+// Log all requests
+app.use((req, res, next) => {
+  log(`${req.method} ${req.path} - Headers: ${JSON.stringify(req.headers)}`);
+  next();
+});
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 

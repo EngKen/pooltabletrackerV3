@@ -19,10 +19,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Login endpoint
   app.post("/api/auth/login", async (req, res) => {
     try {
+      console.log('Login attempt:', { body: req.body, headers: req.headers });
+      
       const { accountId, password } = LoginSchema.parse(req.body);
       
       const user = await storage.getUserByUsername(accountId);
+      console.log('User lookup result:', { found: !!user, username: accountId });
+      
       if (!user || user.password !== password) {
+        console.log('Login failed: Invalid credentials');
         return res.status(401).json({ 
           success: false, 
           message: "Invalid credentials" 
@@ -31,6 +36,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Generate a simple token (in production, use proper JWT)
       const token = Buffer.from(`${user.id}:${Date.now()}`).toString('base64');
+      
+      console.log('Login successful:', { userId: user.id, username: user.username });
       
       return res.json({
         success: true,
@@ -43,9 +50,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       });
     } catch (error) {
-      return res.status(400).json({ 
+      console.error('Login error:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "Invalid request data",
+          errors: error.errors
+        });
+      }
+      return res.status(500).json({ 
         success: false, 
-        message: "Invalid request data" 
+        message: "Internal server error",
+        error: error.message 
       });
     }
   });
