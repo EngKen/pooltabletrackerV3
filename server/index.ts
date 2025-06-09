@@ -7,7 +7,9 @@ const app = express();
 
 // Enable CORS for all routes
 app.use(cors({
-  origin: true, // Allow all origins during debugging
+  origin: process.env.NODE_ENV === 'production'
+    ? 'https://pooltabletracker-v3-7nt0w3q7q-kennedys-projects-8c7e6b8e.vercel.app'
+    : 'http://localhost:5173',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Accept']
